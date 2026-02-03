@@ -9,12 +9,12 @@
 </p>
 
 <p align="center">
-  <a href="#features">Features</a> •
-  <a href="#installation">Installation</a> •
-  <a href="#usage">Usage</a> •
-  <a href="#api">API</a> •
-  <a href="#themes">Themes</a> •
-  <a href="#contributing">Contributing</a>
+  <a href="#-features">Features</a> •
+  <a href="#-installation">Installation</a> •
+  <a href="#-usage">Usage</a> •
+  <a href="#-api">API</a> •
+  <a href="#-themes">Themes</a> •
+  <a href="#-contributing">Contributing</a>
 </p>
 
 ---
