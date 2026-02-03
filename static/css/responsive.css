@@ -1,0 +1,189 @@
+/* ==============================================
+   RESPONSIVE STYLES - ZenStatus
+   ==============================================
+   Media queries for different screen sizes
+*/
+
+@media (max-width: 768px) {
+    .header {
+        padding: 40px 24px;
+    }
+
+    .header-content {
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    .title-group h1 {
+        font-size: 2em;
+    }
+
+    .content {
+        padding: 32px 20px;
+    }
+
+    .button-group {
+        flex-direction: column;
+    }
+
+    button {
+        width: 100%;
+    }
+
+    .summary {
+        padding: 20px;
+        gap: 16px;
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .summary-item .number {
+        font-size: 1.8em;
+    }
+
+    .summary-divider {
+        display: none;
+    }
+
+    .seo-score-container {
+        grid-column: 1 / -1;
+    }
+
+    .seo-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .seo-card .metrics-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .site-group {
+        padding: 20px;
+    }
+
+    .site-group-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .site-group-stats {
+        flex-wrap: wrap;
+    }
+
+    .sitemap-fields {
+        flex-direction: column;
+    }
+
+    .sitemap-fields input {
+        width: 100%;
+    }
+
+    .export-actions {
+        flex-direction: column;
+    }
+
+    .export-actions button {
+        width: 100%;
+    }
+
+    .modal-box {
+        width: 90%;
+        max-width: 360px;
+        padding: 24px;
+    }
+
+    .heading-hierarchy {
+        gap: 6px;
+    }
+
+    .recommendation-item {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .recommendation-severity {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .header {
+        padding: 32px 16px;
+    }
+
+    .title-group h1 {
+        font-size: 1.75em;
+    }
+
+    .title-group p {
+        font-size: 1em;
+    }
+
+    .content {
+        padding: 24px 16px;
+    }
+
+    .summary {
+        padding: 16px;
+    }
+
+    .summary-item .number {
+        font-size: 2em;
+    }
+
+    .summary-item .label {
+        font-size: 0.75em;
+    }
+
+    .seo-card .card-header {
+        padding: 12px 16px;
+    }
+
+    .seo-card .card-body {
+        padding: 16px;
+        gap: 12px;
+    }
+
+    .seo-card .metrics-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+
+    .seo-card .metric-item {
+        padding: 8px;
+    }
+
+    .seo-card .metric-item .metric-value {
+        font-size: 1.1em;
+    }
+
+    table th,
+    table td {
+        padding: 12px 16px;
+    }
+
+    .logo {
+        height: 36px;
+    }
+
+    .logo-row {
+        gap: 12px;
+    }
+}
+
+/* Large screens */
+@media (min-width: 1400px) {
+    .seo-cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .content {
+        padding: 80px 80px 100px 80px;
+    }
+}
+
+@media (min-width: 1800px) {
+    .seo-cards {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}

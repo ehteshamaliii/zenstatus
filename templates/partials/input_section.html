@@ -1,0 +1,23 @@
+<div class="input-section">
+    <label for="urls">Target URLs</label>
+    <textarea id="urls" placeholder="https://example.com&#10;http://example2.com"></textarea>
+    <div class="button-group">
+        <button class="btn-primary" id="checkButton" onclick="checkWebsites()">Check Status</button>
+        <button class="btn-secondary" id="auditButton" onclick="runSeoAudit()">SEO Audit</button>
+        <button class="btn-secondary" id="cancelButton" onclick="cancelCurrentOperation()" disabled>Cancel</button>
+        <button class="btn-secondary" onclick="handleClearClick()">Clear</button>
+        <button class="btn-secondary" onclick="triggerFileUpload()" title="Import URLs from file">Import File</button>
+        <input type="file" id="urlFileInput" accept=".txt,.csv" style="display:none">
+    </div>
+    <div class="sitemap-controls">
+        <label class="checkbox-label"><input type="checkbox" checked id="useSitemap"> Crawl sitemap automatically</label>
+        <div class="sitemap-fields">
+            <input type="text" id="sitemapUrl" placeholder="Optional sitemap URL">
+            <input type="number" id="maxPages" min="1" max="10000" placeholder="Max Pages (up to 10000)" title="Max pages limit">
+        </div>
+    </div>
+    <div id="historyContainer" class="history-container">
+        <div class="history-toggle" onclick="toggleHistory()">Audit History</div>
+        <div id="historyList" class="history-list hidden"></div>
+    </div>
+</div>

@@ -1,0 +1,107 @@
+/* ==============================================
+   THEME VARIABLES - ZenStatus
+   ==============================================
+   All color schemes and theme-specific variables
+*/
+
+:root {
+    /* Default: Serenity (Classic Blue & Cool Grays) */
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8f9fa;
+    --bg-tertiary: #e9ecef;
+    --text-primary: #1a202c;
+    --text-secondary: #4a5568;
+    --text-on-accent: #ffffff;
+    --accent-primary: #0F4C81; /* Pantone Classic Blue */
+    --accent-hover: #0a365c;
+    --border-color: #e2e8f0;
+    --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --header-bg: #0F4C81;
+    --header-text: #ffffff;
+    
+    /* Status Colors */
+    --status-ok-bg: #f0fdf4;
+    --status-ok-border: #86efac;
+    --status-ok-text: #166534;
+    
+    --status-warn-bg: #fffbeb;
+    --status-warn-border: #fcd34d;
+    --status-warn-text: #92400e;
+    
+    --status-error-bg: #fef2f2;
+    --status-error-border: #fca5a5;
+    --status-error-text: #991b1b;
+
+    --status-info-bg: #eff6ff;
+    --status-info-border: #93c5fd;
+    --status-info-text: #1e40af;
+    
+    /* Typography */
+    --font-display: 'Montserrat', sans-serif;
+    --font-body: 'Outfit', sans-serif;
+    --font-mono: 'SF Mono', 'Monaco', 'Courier New', monospace;
+
+    /* SEO Score Colors */
+    --score-excellent: #16a34a;
+    --score-good: #65a30d;
+    --score-average: #ca8a04;
+    --score-poor: #ea580c;
+    --score-critical: #dc2626;
+}
+
+/* Sage (Renewal) - Desert Sage & Earth Tones */
+[data-theme="sage"] {
+    --bg-primary: #fcfcfc;
+    --bg-secondary: #f4f5f1;
+    --bg-tertiary: #e8e8e4;
+    --text-primary: #2c3327;
+    --text-secondary: #5c6159;
+    --text-on-accent: #ffffff;
+    --accent-primary: #5b6e58;
+    --accent-hover: #4a5a47;
+    --border-color: #d8dcd6;
+    --header-bg: #768a73; 
+    --header-text: #ffffff;
+}
+
+/* Rose (Compassion) - Rose Quartz & Soft Grays */
+[data-theme="rose"] {
+    --bg-primary: #fffafa;
+    --bg-secondary: #fdf2f4;
+    --bg-tertiary: #fce7eb;
+    --text-primary: #4a4a4a;
+    --text-secondary: #757575;
+    --text-on-accent: #ffffff;
+    --accent-primary: #B76E79; 
+    --accent-hover: #9e5b65;
+    --border-color: #f0dcdf;
+    --header-bg: #d69ca5;
+    --header-text: #ffffff;
+}
+
+/* Dark Mode - Midnight */
+[data-theme="midnight"] {
+    --bg-primary: #0f172a;
+    --bg-secondary: #1e293b;
+    --bg-tertiary: #334155;
+    --text-primary: #f1f5f9;
+    --text-secondary: #cbd5e1;
+    --text-on-accent: #ffffff;
+    --accent-primary: #38bdf8;
+    --accent-hover: #0284c7;
+    --border-color: #334155;
+    --header-bg: #020617;
+    --header-text: #f8fafc;
+    
+    --status-ok-bg: #052e16;
+    --status-ok-border: #166534;
+    --status-ok-text: #86efac;
+    
+    --status-warn-bg: #451a03;
+    --status-warn-border: #78350f;
+    --status-warn-text: #fcd34d;
+    
+    --status-error-bg: #450a0a;
+    --status-error-border: #7f1d1d;
+    --status-error-text: #fca5a5;
+}
