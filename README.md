@@ -88,6 +88,89 @@
 
 ---
 
+## 🌐 Production Deployment
+
+### Webuzo / cPanel Deployment
+
+This guide covers deploying ZenStatus on a production server using Webuzo or similar Python hosting environments.
+
+#### 1. Upload Files to Server
+
+Upload your repository to your server's application directory:
+```bash
+/home/zenstatus/public_html/zen/
+├── check_sites.py
+├── wsgi.py
+├── requirements.txt
+├── static/
+└── venv/ (will be created)
+```
+
+#### 2. Create Virtual Environment
+
+SSH into your server and create a virtual environment:
+```bash
+cd /home/zenstatus/public_html/zen
+python3 -m venv venv
+source venv/bin/activate
+```
+
+#### 3. Install Dependencies
+
+Install required packages in the virtual environment:
+```bash
+pip install -r requirements.txt
+pip install gunicorn
+```
+
+#### 4. Configure Webuzo Python Application
+
+In your Webuzo control panel, configure the Python application with these settings:
+
+| Setting | Value |
+|---------|-------|
+| **Port** | 30000 (or your assigned port) |
+| **Application Name** | Zen Status |
+| **Deployment Domain** | zen.alluredigital.org |
+| **Base Application URL** | zen.alluredigital.org/ |
+| **Application Path** | /home/zenstatus/public_html/zen |
+| **Application Type** | Python 3 |
+| **Application Startup File** | wsgi.py |
+| **Start Command** | `./venv/bin/gunicorn --bind 127.0.0.1:30000 wsgi:app` |
+| **Stop Command** | `pkill -f gunicorn` |
+
+#### 5. Environment Variables (Optional)
+
+Add any required environment variables in Webuzo:
+- `port`: 30000
+
+#### 6. Start the Application
+
+Start your application using the Webuzo interface or manually:
+```bash
+cd /home/zenstatus/public_html/zen
+./venv/bin/gunicorn --bind 127.0.0.1:30000 wsgi:app
+```
+
+#### 7. Configure Reverse Proxy (If Needed)
+
+Ensure your web server (Apache/Nginx) is configured to proxy requests to your application port. This is usually handled automatically by Webuzo.
+
+#### Production Tips
+
+- **Process Management**: Use Supervisor or systemd for automatic restarts
+- **Workers**: For better performance, add workers: `--workers 4`
+- **Logging**: Enable Gunicorn logging: `--access-logfile access.log --error-logfile error.log`
+- **Security**: Always use HTTPS in production
+- **Updates**: Pull latest changes and restart: 
+  ```bash
+  git pull origin main
+  pkill -f gunicorn
+  ./venv/bin/gunicorn --bind 127.0.0.1:30000 wsgi:app
+  ```
+
+---
+
 ## 📖 Usage
 
 ### Basic Status Check
