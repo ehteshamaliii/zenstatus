@@ -1444,7 +1444,7 @@ HTML_TEMPLATE = '''
                     var hasWarnings = (result.warnings || []).length > 0;
                     var isError = (typeof result.status_code === 'number' && result.status_code >= 400) || result.status_message !== 'OK';
                     var statusClass = isError ? 'status-danger' : (hasWarnings ? 'status-warn' : 'status-ok');
-                    var isDuplicate = result.duplicate_of && result.duplicate_of !== result.url;
+                    var isDuplicate = result.duplicate_of && result.duplicate_of.trim() !== '';
 
                     var codeClass = 'pill';
                     if (typeof result.status_code === 'number') {
@@ -2177,7 +2177,7 @@ def seo_audit():
         
         # Collect sitemap URLs from all input URLs
         all_crawled_urls = []
-        seen_crawled = set()
+        seen_crawled = {}  # Maps normalized URL to first occurrence
         
         for base_input_url in original_urls:
             base_url = base_input_url.rstrip('/')
@@ -2201,13 +2201,16 @@ def seo_audit():
                     sitemap_found_urls = True
                     for u in crawled_urls:
                         all_crawled_urls.append(u)
+                        # Normalize URL for duplicate detection
+                        normalized = u.lower().rstrip('/')
                         # Track if this URL was already seen (mark as duplicate)
-                        if u in seen_crawled:
-                            # Find the first occurrence to mark as duplicate_of
+                        if normalized in seen_crawled:
+                            # Mark this URL as a duplicate of the first occurrence
                             if u not in dup_map:
-                                dup_map[u] = u  # Self-reference indicates exact duplicate in list
+                                dup_map[u] = seen_crawled[normalized]
                         else:
-                            seen_crawled.add(u)
+                            # First time seeing this URL
+                            seen_crawled[normalized] = u
                         
             except Exception as e:
                 debug_entry = {
@@ -2220,9 +2223,10 @@ def seo_audit():
             
             # If no URLs found from sitemap, add the original input URL to audit
             if not sitemap_found_urls:
-                if base_input_url not in seen_crawled:
+                normalized = base_input_url.lower().rstrip('/')
+                if normalized not in seen_crawled:
                     all_crawled_urls.append(base_input_url)
-                    seen_crawled.add(base_input_url)
+                    seen_crawled[normalized] = base_input_url
         
         # Use crawled URLs if found, otherwise fall back to original URLs
         if all_crawled_urls:
@@ -2265,7 +2269,14 @@ def seo_audit():
                     
                     result = future.result()
                     if dup_map:
-                        result['duplicate_of'] = dup_map.get(result.get('url'))
+                        dup_of = dup_map.get(result.get('url'))
+                        if dup_of:
+                            result['duplicate_of'] = dup_of
+                            # Add duplicate warning if not already present
+                            if 'warnings' not in result:
+                                result['warnings'] = []
+                            if 'Duplicate URL' not in result['warnings']:
+                                result['warnings'].append('Duplicate URL')
                     results.append(result)
                     completed += 1
 
