@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZenStatus - Website Auditor</title>
+    <link rel="icon" id="favicon" type="image/svg+xml" href="/static/logo.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Modular CSS -->
+    <link rel="stylesheet" href="/static/css/themes.css">
+    <link rel="stylesheet" href="/static/css/base.css">
+    <link rel="stylesheet" href="/static/css/components.css">
+    <link rel="stylesheet" href="/static/css/responsive.css">
+</head>
+<body>
+    <div class="container">
+        {% include 'partials/header.html' %}
+        
+        <div class="content">
+            {% include 'partials/input_section.html' %}
+            {% include 'partials/loading.html' %}
+            {% include 'partials/status_results.html' %}
+            {% include 'partials/seo_results.html' %}
+        </div>
+    </div>
+    
+    <div id="toastContainer" class="toast-container"></div>
+    {% include 'partials/modals.html' %}
+    
+    <!-- Modular JavaScript -->
+    <script src="/static/js/storage.js"></script>
+    <script src="/static/js/themes.js"></script>
+    <script src="/static/js/ui.js"></script>
+    <script src="/static/js/api.js"></script>
+    <script src="/static/js/export.js"></script>
+    <script src="/static/js/main.js"></script>
+</body>
+</html>
