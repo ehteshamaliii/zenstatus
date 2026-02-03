@@ -112,11 +112,18 @@
 
 This guide covers deploying ZenStatus on a production server using Webuzo or similar Python hosting environments.
 
+#### Variables
+
+Replace these placeholders with your actual values:
+- `{APP_PATH}` — Your application directory (e.g., `/home/username/public_html/app`)
+- `{DOMAIN}` — Your domain name (e.g., `seo.example.com`)
+- `{PORT}` — Your assigned port number (e.g., `30000`)
+
 #### 1. Upload Files to Server
 
 Upload your repository to your server's application directory:
 ```bash
-/home/zenstatus/public_html/zen/
+{APP_PATH}/
 ├── check_sites.py
 ├── wsgi.py
 ├── requirements.txt
@@ -128,7 +135,7 @@ Upload your repository to your server's application directory:
 
 SSH into your server and create a virtual environment:
 ```bash
-cd /home/zenstatus/public_html/zen
+cd {APP_PATH}
 python3 -m venv venv
 source venv/bin/activate
 ```
@@ -147,27 +154,27 @@ In your Webuzo control panel, configure the Python application with these settin
 
 | Setting | Value |
 |---------|-------|
-| **Port** | 30000 (or your assigned port) |
-| **Application Name** | Zen Status |
-| **Deployment Domain** | zen.alluredigital.org |
-| **Base Application URL** | zen.alluredigital.org/ |
-| **Application Path** | /home/zenstatus/public_html/zen |
+| **Port** | `{PORT}` |
+| **Application Name** | ZenStatus |
+| **Deployment Domain** | `{DOMAIN}` |
+| **Base Application URL** | `{DOMAIN}/` |
+| **Application Path** | `{APP_PATH}` |
 | **Application Type** | Python 3 |
 | **Application Startup File** | wsgi.py |
-| **Start Command** | `./venv/bin/gunicorn --bind 127.0.0.1:30000 --timeout 1200 --workers 2 wsgi:app` |
+| **Start Command** | `./venv/bin/gunicorn --bind 127.0.0.1:{PORT} --timeout 1200 --workers 2 wsgi:app` |
 | **Stop Command** | `pkill -f gunicorn` |
 
 #### 5. Environment Variables (Optional)
 
 Add any required environment variables in Webuzo:
-- `port`: 30000
+- `port`: `{PORT}`
 
 #### 6. Start the Application
 
 Start your application using the Webuzo interface or manually:
 ```bash
-cd /home/zenstatus/public_html/zen
-./venv/bin/gunicorn --bind 127.0.0.1:30000 --timeout 1200 --workers 2 wsgi:app
+cd {APP_PATH}
+./venv/bin/gunicorn --bind 127.0.0.1:{PORT} --timeout 1200 --workers 2 wsgi:app
 ```
 
 **Important**: The `--timeout 1200` flag sets worker timeout to 20 minutes, which is essential for SEO audits with 500+ pages. Without this, Gunicorn will kill workers after 30 seconds.
