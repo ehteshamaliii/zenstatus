@@ -136,7 +136,7 @@ In your Webuzo control panel, configure the Python application with these settin
 | **Application Path** | /home/zenstatus/public_html/zen |
 | **Application Type** | Python 3 |
 | **Application Startup File** | wsgi.py |
-| **Start Command** | `./venv/bin/gunicorn --bind 127.0.0.1:30000 wsgi:app` |
+| **Start Command** | `./venv/bin/gunicorn --bind 127.0.0.1:30000 --timeout 1200 --workers 2 wsgi:app` |
 | **Stop Command** | `pkill -f gunicorn` |
 
 #### 5. Environment Variables (Optional)
@@ -149,8 +149,10 @@ Add any required environment variables in Webuzo:
 Start your application using the Webuzo interface or manually:
 ```bash
 cd /home/zenstatus/public_html/zen
-./venv/bin/gunicorn --bind 127.0.0.1:30000 wsgi:app
+./venv/bin/gunicorn --bind 127.0.0.1:30000 --timeout 1200 --workers 2 wsgi:app
 ```
+
+**Important**: The `--timeout 1200` flag sets worker timeout to 20 minutes, which is essential for SEO audits with 500+ pages. Without this, Gunicorn will kill workers after 30 seconds.
 
 #### 7. Configure Reverse Proxy (If Needed)
 
@@ -160,14 +162,31 @@ Ensure your web server (Apache/Nginx) is configured to proxy requests to your ap
 
 - **Process Management**: Use Supervisor or systemd for automatic restarts
 - **Workers**: For better performance, add workers: `--workers 4`
+- **Timeout**: For large audits (500+ pages), use `--timeout 1200` (20 minutes) or higher for very large sites
 - **Logging**: Enable Gunicorn logging: `--access-logfile access.log --error-logfile error.log`
 - **Security**: Always use HTTPS in production
 - **Updates**: Pull latest changes and restart: 
   ```bash
   git pull origin main
   pkill -f gunicorn
-  ./venv/bin/gunicorn --bind 127.0.0.1:30000 wsgi:app
+  ./venv/bin/gunicorn --bind 127.0.0.1:30000 --timeout 1200 --workers 2 wsgi:app
   ```
+
+#### Troubleshooting `ERR_INCOMPLETE_CHUNKED_ENCODING`
+
+If you get this error on large SEO audits (500+ pages):
+
+1. **Increase Gunicorn timeout**: Add `--timeout 1200` (20 minutes) or `--timeout 1500` (25 minutes) to your start command
+2. **Check proxy timeout**: Ensure Apache/Nginx proxy timeout is also increased:
+   ```apache
+   # Apache
+   ProxyTimeout 1200
+   
+   # Nginx
+   proxy_read_timeout 1200s;
+   ```
+3. **Monitor logs**: Check `error.log` for worker timeout messages
+4. **Break into batches**: For very large sites (1000+ pages), consider setting a lower max_pages limit
 
 ---
 

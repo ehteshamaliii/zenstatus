@@ -2244,6 +2244,10 @@ def seo_audit():
         results = []
         completed = 0
         total = len(urls)
+        last_update = time.time()
+
+        # Send initial keep-alive
+        yield ": keep-alive\n\n"
 
         batch_size = 300
         start_index = 0
@@ -2254,6 +2258,11 @@ def seo_audit():
                 future_to_url = {executor.submit(audit_website, url): url for url in batch}
 
                 for future in as_completed(future_to_url):
+                    # Send keep-alive every 10 seconds to prevent timeout
+                    if time.time() - last_update > 10:
+                        yield ": keep-alive\n\n"
+                        last_update = time.time()
+                    
                     result = future.result()
                     if dup_map:
                         result['duplicate_of'] = dup_map.get(result.get('url'))
@@ -2266,6 +2275,7 @@ def seo_audit():
                         'total': total
                     }
                     yield f"data: {json.dumps(progress_data)}\n\n"
+                    last_update = time.time()
             start_index += batch_size
 
         sorted_results = sorted(results, key=lambda x: (
