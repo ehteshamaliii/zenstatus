@@ -11,9 +11,12 @@
 <p align="center">
   <a href="#-features">Features</a> •
   <a href="#-installation">Installation</a> •
+  <a href="#-production-deployment">Deployment</a> •
   <a href="#-usage">Usage</a> •
   <a href="#-api">API</a> •
   <a href="#-themes">Themes</a> •
+  <a href="#-seo-metrics-analyzed">SEO Metrics</a> •
+  <a href="#-tech-stack">Tech Stack</a> •
   <a href="#-contributing">Contributing</a>
 </p>
 
@@ -23,24 +26,39 @@
 
 ### 🔍 Website Status Checking
 - **Bulk URL checking** — Check multiple websites simultaneously
-- **Real-time progress** — Stream results as they complete
+- **Real-time progress** — Stream results as they complete with live progress bar
 - **Response metrics** — Status codes, response times, and availability
+- **File upload** — Import URLs from `.txt` files
 
 ### 📊 SEO Auditing
-- **Comprehensive analysis** — Title tags, meta descriptions, H1 tags, word count, and more
-- **Sitemap crawling** — Automatically discover and crawl XML sitemaps
+- **Comprehensive analysis** — Title tags, meta descriptions, heading hierarchy (H1-H4), word count, and more
+- **SEO scoring** — Each page receives a 0-100 score based on SEO best practices
+- **Sitemap crawling** — Automatically discover and crawl XML sitemaps (up to 10,000 pages)
 - **Duplicate detection** — Identify duplicate pages with visual indicators
 - **Issue prioritization** — Top issues highlighted for quick action
+- **Heading hierarchy** — Visual breakdown of H1, H2, H3, H4 tag counts
+
+### 🔎 Filter & Sort
+- **Filter by status** — View all pages, only issues, good scores (70+), or poor scores (<70)
+- **Sort options** — Sort by score (ascending/descending) or by number of issues
+- **Per-site grouping** — Results organized by domain with site-level statistics
+
+### 📜 Audit History
+- **Persistent storage** — Previous audits saved to localStorage
+- **Quick reload** — Click any saved audit to reload results instantly
+- **Auto-cleanup** — Keeps last 10 audits, automatically manages storage limits
 
 ### 🎨 Modern UI/UX
 - **Multiple themes** — Serenity (Classic Blue), Sage (Earth Tones), Rose (Soft Pink)
 - **Responsive design** — Works on desktop and mobile
 - **Print-ready reports** — Clean print layout for client deliverables
 - **Dynamic favicon** — Favicon color changes based on selected theme
+- **Toast notifications** — Non-intrusive feedback for all actions
+- **Loading states** — Progress bar with percentage during audits
 
 ### 📤 Export Options
 - **JSON export** — Full data for programmatic use
-- **CSV export** — Spreadsheet-compatible format
+- **CSV export** — Spreadsheet-compatible format with all metrics
 - **Per-site CSV** — Separate CSV files for each audited domain
 - **Print report** — Professional PDF-ready output
 
@@ -194,15 +212,29 @@ If you get this error on large SEO audits (500+ pages):
 
 ### Basic Status Check
 1. Enter one or more URLs in the textarea (one per line)
-2. Click **"Check Status"**
-3. View results with status codes, response times, and availability
+2. Or click **"Upload File"** to import URLs from a `.txt` file
+3. Click **"Check Status"**
+4. View results with status codes, response times, and availability
 
 ### SEO Audit
 1. Enter target URLs (e.g., `example.com` or `https://example.com`)
-2. Enable **"Crawl sitemap automatically"** to discover all pages
-3. Optionally set a **max pages limit** (up to 10,000)
-4. Click **"SEO Audit"**
-5. Review grouped results by site with detailed metrics
+2. Or upload a file containing URLs
+3. Enable **"Crawl sitemap automatically"** to discover all pages
+4. Optionally set a **max pages limit** (up to 10,000)
+5. Click **"SEO Audit"**
+6. Review grouped results by site with detailed metrics and SEO scores
+
+### Filter & Sort Results
+After an SEO audit completes:
+- **Filter buttons** — Show All, Issues Only, Good (70+), or Poor (<70)
+- **Sort dropdown** — Default order, Score (Low→High), Score (High→Low), or Most Issues
+- Filters and sorts apply within each site group
+
+### Audit History
+- Completed audits are automatically saved to browser storage
+- Click the **History** dropdown to view saved audits
+- Click any saved audit to reload its results
+- Click **"Clear History"** to remove all saved audits
 
 ### URL Formats Supported
 ```
@@ -274,12 +306,34 @@ Theme preference is saved to localStorage and persists across sessions.
 | **Title Length** | Characters in `<title>` tag | 50-60 characters |
 | **Meta Description** | Characters in meta description | 150-160 characters |
 | **H1 Count** | Number of H1 tags on page | Exactly 1 |
+| **H2 Count** | Number of H2 tags on page | 1 or more |
+| **H3 Count** | Number of H3 tags on page | Varies |
+| **H4 Count** | Number of H4 tags on page | Varies |
 | **Word Count** | Total words in body content | 300+ words |
 | **Internal Links** | Links to same domain | Varies |
 | **External Links** | Links to other domains | Varies |
 | **Images Missing Alt** | Images without alt text | 0 |
 | **Robots Meta** | Robots directive | index, follow |
 | **Canonical URL** | Canonical link element | Should exist |
+| **HTTPS** | Secure connection | Required |
+| **Response Time** | Server response time | < 2 seconds |
+
+### SEO Score Calculation
+
+Each page receives a score from 0-100 based on:
+- **Title optimization** — Length and presence
+- **Meta description** — Length and presence
+- **Heading structure** — Proper H1 usage
+- **Content depth** — Word count
+- **Image accessibility** — Alt text coverage
+- **Technical SEO** — Canonical, robots, HTTPS
+
+| Score Range | Rating |
+|-------------|--------|
+| 90-100 | Excellent |
+| 70-89 | Good |
+| 50-69 | Needs Work |
+| 0-49 | Poor |
 
 ---
 
@@ -299,11 +353,32 @@ Theme preference is saved to localStorage and persists across sessions.
 
 ```
 zenstatus/
-├── check_sites.py      # Main Flask application
-├── requirements.txt    # Python dependencies
-├── static/
-│   └── logo.svg        # Application logo
-└── README.md           # This file
+├── check_sites.py          # Main Flask application & SEO auditing logic
+├── wsgi.py                 # WSGI entry point for production
+├── requirements.txt        # Python dependencies
+├── LICENSE                 # MIT License
+├── README.md               # Documentation
+├── templates/
+│   ├── base.html           # Main HTML template
+│   └── partials/           # Reusable template components
+│       ├── input_section.html
+│       ├── loading.html
+│       ├── results_section.html
+│       └── seo_results.html
+└── static/
+    ├── logo.svg            # Application logo
+    ├── css/
+    │   ├── base.css        # Core styles
+    │   ├── components.css  # UI component styles
+    │   ├── themes.css      # Theme definitions
+    │   └── responsive.css  # Mobile responsive styles
+    └── js/
+        ├── storage.js      # LocalStorage wrapper (ZenStorage)
+        ├── themes.js       # Theme switching & favicon
+        ├── ui.js           # Toast notifications, modals, loading states
+        ├── api.js          # Server communication & result rendering
+        ├── export.js       # JSON/CSV export functionality
+        └── main.js         # App initialization, history, filter/sort
 ```
 
 ---
