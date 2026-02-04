@@ -287,6 +287,248 @@ function generateExecutiveSummary(results, avgScore, topWarnings, scoreDistribut
 }
 
 // ============================================
+// DETAILED AUDIT MODAL
+// ============================================
+
+var currentAuditData = null;
+
+function openDetailedAudit(result) {
+    currentAuditData = result;
+    var modal = document.getElementById('detailedAuditModal');
+    if (!modal) return;
+    
+    // Populate URL
+    document.getElementById('detailedAuditUrl').innerHTML = '<a href="' + result.url + '" target="_blank">' + result.url + '</a>';
+    
+    // Populate Keywords
+    var metaKeywords = result.meta_keywords || '-';
+    document.getElementById('metaKeywords').textContent = metaKeywords;
+    
+    var topKeywordsDiv = document.getElementById('topKeywords');
+    topKeywordsDiv.innerHTML = '';
+    if (result.top_keywords && result.top_keywords.length > 0) {
+        result.top_keywords.forEach(function(kw) {
+            var tag = document.createElement('span');
+            tag.className = 'keyword-tag';
+            tag.textContent = kw.keyword + ' (' + kw.count + ')';
+            topKeywordsDiv.appendChild(tag);
+        });
+    } else {
+        topKeywordsDiv.innerHTML = '<span class="text-muted">No keywords found</span>';
+    }
+    
+    // Populate Issues
+    var issuesDiv = document.getElementById('detailedIssues');
+    issuesDiv.innerHTML = '';
+    if (result.warnings && result.warnings.length > 0) {
+        result.warnings.forEach(function(warning) {
+            var issueItem = document.createElement('div');
+            issueItem.className = 'issue-item ' + getSeverityClass(warning);
+            
+            var issueName = document.createElement('div');
+            issueName.className = 'issue-name';
+            issueName.textContent = warning;
+            
+            var issueFix = document.createElement('div');
+            issueFix.className = 'issue-fix';
+            issueFix.innerHTML = getIssueFix(warning);
+            
+            issueItem.appendChild(issueName);
+            issueItem.appendChild(issueFix);
+            issuesDiv.appendChild(issueItem);
+        });
+    } else {
+        issuesDiv.innerHTML = '<div class="success-message">✓ No issues found!</div>';
+    }
+    
+    // Populate Broken Links
+    var brokenLinksDiv = document.getElementById('detailedBrokenLinks');
+    var brokenLinksSection = document.getElementById('brokenLinksSection');
+    if (result.broken_link_samples && result.broken_link_samples.length > 0) {
+        brokenLinksSection.style.display = 'block';
+        brokenLinksDiv.innerHTML = '<p><strong>Found ' + result.broken_links + ' broken links</strong> (showing first ' + result.broken_link_samples.length + '):</p>';
+        result.broken_link_samples.forEach(function(link) {
+            var linkItem = document.createElement('div');
+            linkItem.className = 'broken-link-item';
+            linkItem.innerHTML = '<a href="' + link + '" target="_blank">' + link + '</a>';
+            brokenLinksDiv.appendChild(linkItem);
+        });
+    } else {
+        brokenLinksSection.style.display = 'none';
+    }
+    
+    // Populate Images
+    var imagesDiv = document.getElementById('detailedImages');
+    var imagesSummaryDiv = document.getElementById('imagesSummary');
+    var imagesSection = document.getElementById('imagesSection');
+    
+    if (result.images_details && result.images_details.length > 0) {
+        imagesSection.style.display = 'block';
+        
+        // Summary
+        var issueCount = result.images_details.filter(function(img) { return img.has_issues; }).length;
+        imagesSummaryDiv.innerHTML = '<p><strong>' + result.total_images + ' total images</strong> | ' + 
+            issueCount + ' with issues | ' + 
+            result.images_missing_alt + ' missing alt text | ' +
+            result.images_no_dimensions + ' missing dimensions</p>';
+        
+        // Show images with issues first
+        imagesDiv.innerHTML = '';
+        var sortedImages = result.images_details.slice().sort(function(a, b) {
+            return (b.has_issues ? 1 : 0) - (a.has_issues ? 1 : 0);
+        });
+        
+        sortedImages.forEach(function(img) {
+            var imgCard = document.createElement('div');
+            imgCard.className = 'image-card' + (img.has_issues ? ' image-has-issues' : '');
+            
+            var imgPreview = document.createElement('div');
+            imgPreview.className = 'image-preview';
+            var imgEl = document.createElement('img');
+            imgEl.src = img.src;
+            imgEl.alt = img.alt || 'No alt text';
+            imgEl.onerror = function() { this.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100"%3E%3Crect fill="%23ddd" width="100" height="100"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" dy=".3em" fill="%23999"%3ENo Image%3C/text%3E%3C/svg%3E'; };
+            imgPreview.appendChild(imgEl);
+            
+            var imgInfo = document.createElement('div');
+            imgInfo.className = 'image-info';
+            
+            var imgUrl = document.createElement('div');
+            imgUrl.className = 'image-url';
+            imgUrl.innerHTML = '<a href="' + img.src + '" target="_blank" title="' + img.src + '">' + img.src.substring(0, 50) + (img.src.length > 50 ? '...' : '') + '</a>';
+            
+            var imgDetails = document.createElement('div');
+            imgDetails.className = 'image-details';
+            imgDetails.innerHTML = '<strong>Alt:</strong> ' + (img.alt || '<em>Missing</em>') + '<br>' +
+                '<strong>Dimensions:</strong> ' + (img.width || '?') + 'x' + (img.height || '?') + '<br>' +
+                '<strong>Loading:</strong> ' + (img.loading || 'default');
+            
+            if (img.issues && img.issues.length > 0) {
+                var imgIssues = document.createElement('div');
+                imgIssues.className = 'image-issues';
+                imgIssues.innerHTML = '<strong>Issues:</strong> ' + img.issues.join(', ');
+                imgDetails.appendChild(imgIssues);
+            }
+            
+            imgInfo.appendChild(imgUrl);
+            imgInfo.appendChild(imgDetails);
+            
+            imgCard.appendChild(imgPreview);
+            imgCard.appendChild(imgInfo);
+            imagesDiv.appendChild(imgCard);
+        });
+    } else if (result.total_images > 0) {
+        imagesSection.style.display = 'block';
+        imagesSummaryDiv.innerHTML = '<p><strong>' + result.total_images + ' total images</strong></p>';
+        imagesDiv.innerHTML = '<p class="text-muted">Detailed image information not available for this audit.</p>';
+    } else {
+        imagesSection.style.display = 'none';
+    }
+    
+    // Populate Render-Blocking Resources
+    var renderBlockingDiv = document.getElementById('detailedRenderBlocking');
+    var renderBlockingSection = document.getElementById('renderBlockingSection');
+    
+    if (result.render_blocking_resources && result.render_blocking_resources.length > 0) {
+        renderBlockingSection.style.display = 'block';
+        renderBlockingDiv.innerHTML = '<p><strong>' + result.render_blocking_count + ' render-blocking resources found</strong> (showing first ' + result.render_blocking_resources.length + '):</p>';
+        
+        result.render_blocking_resources.forEach(function(resource) {
+            var resourceItem = document.createElement('div');
+            resourceItem.className = 'resource-item resource-' + resource.type;
+            resourceItem.innerHTML = '<div class="resource-type">' + resource.type.toUpperCase() + '</div>' +
+                '<div class="resource-src"><a href="' + resource.src + '" target="_blank">' + resource.src + '</a></div>' +
+                '<div class="resource-reason">' + resource.reason + '</div>' +
+                '<div class="resource-fix">' + getResourceFix(resource.type) + '</div>';
+            renderBlockingDiv.appendChild(resourceItem);
+        });
+    } else if (result.render_blocking_count > 0) {
+        renderBlockingSection.style.display = 'block';
+        renderBlockingDiv.innerHTML = '<p><strong>' + result.render_blocking_count + ' render-blocking resources found</strong></p>' +
+            '<p class="text-muted">Detailed resource information not available for this audit.</p>';
+    } else {
+        renderBlockingSection.style.display = 'none';
+    }
+    
+    // Show modal
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeDetailedAudit() {
+    var modal = document.getElementById('detailedAuditModal');
+    if (modal) {
+        modal.classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+    currentAuditData = null;
+}
+
+function getIssueFix(warning) {
+    var fixes = {
+        'Missing title': '💡 Add a unique, descriptive &lt;title&gt; tag (30-60 characters) in the &lt;head&gt; section.',
+        'Title too short': '💡 Expand your title to at least 30 characters for better SEO impact.',
+        'Title too long': '💡 Shorten your title to 60 characters or less to prevent truncation in search results.',
+        'Missing meta description': '💡 Add a &lt;meta name="description"&gt; tag with a compelling summary (120-160 characters).',
+        'Description too short': '💡 Expand your meta description to at least 120 characters.',
+        'Description too long': '💡 Shorten your meta description to 160 characters or less.',
+        'Missing H1': '💡 Add a single &lt;h1&gt; tag with your main page heading.',
+        'Multiple H1 tags': '💡 Use only one &lt;h1&gt; tag per page. Convert additional H1s to &lt;h2&gt; or lower.',
+        'No H2 headings': '💡 Add &lt;h2&gt; headings to structure your content and improve readability.',
+        'No canonical tag': '💡 Add &lt;link rel="canonical" href="your-url"&gt; to specify the preferred URL.',
+        'Not using HTTPS': '🔒 Migrate to HTTPS with an SSL certificate for security and SEO benefits.',
+        'Thin content': '💡 Add more valuable content (aim for 300+ words) to improve rankings.',
+        'No robots.txt': '💡 Create a robots.txt file at your domain root to guide search engine crawlers.',
+        'No sitemap.xml': '💡 Generate and submit an XML sitemap to help search engines discover your pages.',
+        'Large page size': '⚡ Optimize images, minify CSS/JS, and enable compression to reduce page size.',
+        'Slow response': '⚡ Improve server performance, enable caching, and consider using a CDN.',
+        'Missing viewport': '📱 Add &lt;meta name="viewport" content="width=device-width, initial-scale=1"&gt; for mobile compatibility.',
+        'Missing lang attribute': '🌐 Add lang="en" (or appropriate language) to your &lt;html&gt; tag.',
+        'No Open Graph': '📱 Add Open Graph meta tags for better social media sharing.',
+        'No structured data': '🔍 Implement Schema.org structured data to enhance search results.',
+        'URL too long': '💡 Keep URLs under 75 characters for better usability.',
+        'URL contains underscores': '💡 Replace underscores with hyphens in URLs (e.g., my-page instead of my_page).'
+    };
+    
+    for (var key in fixes) {
+        if (warning.includes(key)) {
+            return fixes[key];
+        }
+    }
+    
+    // Default fix suggestions
+    if (warning.includes('Images missing alt')) {
+        return '💡 Add descriptive alt attributes to all images for accessibility and SEO.';
+    }
+    if (warning.includes('broken links')) {
+        return '💡 Fix or remove broken links to improve user experience and crawlability.';
+    }
+    if (warning.includes('render-blocking')) {
+        return '⚡ Add async/defer attributes to scripts or move them to the footer.';
+    }
+    if (warning.includes('Images without dimensions')) {
+        return '⚡ Add width and height attributes to images to prevent layout shifts (CLS).';
+    }
+    if (warning.includes('Images not lazy')) {
+        return '⚡ Add loading="lazy" to images below the fold to improve page speed.';
+    }
+    if (warning.includes('Redirect chain')) {
+        return '💡 Remove unnecessary redirects by linking directly to the final destination.';
+    }
+    
+    return '💡 Review and address this issue according to SEO best practices.';
+}
+
+function getResourceFix(type) {
+    if (type === 'script') {
+        return '💡 Add async or defer attribute, or move to bottom of &lt;body&gt;';
+    } else if (type === 'stylesheet') {
+        return '💡 Add media="print" for print styles, inline critical CSS, or load asynchronously';
+    }
+    return '';
+}
+
+// ============================================
 // EXPOSE FUNCTIONS GLOBALLY FOR ONCLICK HANDLERS
 // ============================================
 
@@ -303,3 +545,5 @@ window.showToast = showToast;
 window.calculateSeoScore = calculateSeoScore;
 window.getScoreClass = getScoreClass;
 window.getSeverityClass = getSeverityClass;
+window.openDetailedAudit = openDetailedAudit;
+window.closeDetailedAudit = closeDetailedAudit;

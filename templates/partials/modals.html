@@ -7,3 +7,62 @@
         </div>
     </div>
 </div>
+
+<!-- Detailed Audit Modal -->
+<div id="detailedAuditModal" class="modal-overlay hidden">
+    <div class="modal-box detailed-audit-modal">
+        <div class="modal-header">
+            <h2 id="detailedAuditTitle">Page Audit Details</h2>
+            <button class="modal-close" onclick="closeDetailedAudit()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <!-- Page URL -->
+            <div class="audit-section">
+                <h3>🔗 Page URL</h3>
+                <div id="detailedAuditUrl" class="audit-url"></div>
+            </div>
+
+            <!-- Keywords -->
+            <div class="audit-section" id="keywordsSection">
+                <h3>🔑 Keywords</h3>
+                <div class="keywords-container">
+                    <div class="keywords-meta">
+                        <strong>Meta Keywords:</strong> <span id="metaKeywords">-</span>
+                    </div>
+                    <div class="keywords-top">
+                        <strong>Top Content Keywords:</strong>
+                        <div id="topKeywords" class="keyword-tags"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Issues & Warnings -->
+            <div class="audit-section" id="issuesSection">
+                <h3>⚠️ Issues & Warnings</h3>
+                <div id="detailedIssues" class="issues-list"></div>
+            </div>
+
+            <!-- Broken Links -->
+            <div class="audit-section" id="brokenLinksSection">
+                <h3>🔗 Broken Links</h3>
+                <div id="detailedBrokenLinks" class="broken-links-list"></div>
+            </div>
+
+            <!-- Images -->
+            <div class="audit-section" id="imagesSection">
+                <h3>🖼️ Images Analysis</h3>
+                <div id="imagesSummary" class="images-summary"></div>
+                <div id="detailedImages" class="images-grid"></div>
+            </div>
+
+            <!-- Render-Blocking Resources -->
+            <div class="audit-section" id="renderBlockingSection">
+                <h3>⚡ Render-Blocking Resources</h3>
+                <div id="detailedRenderBlocking" class="resources-list"></div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-secondary" onclick="closeDetailedAudit()">Close</button>
+        </div>
+    </div>
+</div>

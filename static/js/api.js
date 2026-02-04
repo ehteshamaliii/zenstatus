@@ -475,6 +475,14 @@ function displaySeoResults(results, sitemapDebug) {
             card.dataset.score = pageScore;
             card.dataset.hasIssues = (resultWarnings.length > 0).toString();
             card.dataset.issueCount = resultWarnings.length;
+            
+            // Add double-click handler to open detailed audit modal
+            card.addEventListener('dblclick', function() {
+                openDetailedAudit(result);
+            });
+            card.style.cursor = 'pointer';
+            card.title = 'Double-click for detailed audit';
+            
             card.innerHTML = [
                 '<div class="card-header">',
                 '  <div class="card-header-left">',

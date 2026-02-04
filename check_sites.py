@@ -380,51 +380,126 @@ def audit_website(url, timeout=15, max_retries=2):
         # Word count
         word_count = len(re.findall(r'\w+', soup.get_text(' ')))
         
+        # Keyword extraction
+        # 1. Meta keywords tag
+        meta_keywords_tag = soup.find('meta', attrs={'name': 'keywords'})
+        meta_keywords = meta_keywords_tag.get('content', '').strip() if meta_keywords_tag else ''
+        
+        # 2. Extract top keywords from content (simple frequency analysis)
+        content_text = soup.get_text(' ').lower()
+        # Remove common stop words
+        stop_words = {'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by', 'from', 'as', 'is', 'was', 'are', 'were', 'been', 'be', 'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'should', 'could', 'may', 'might', 'must', 'can', 'this', 'that', 'these', 'those', 'i', 'you', 'he', 'she', 'it', 'we', 'they', 'what', 'which', 'who', 'when', 'where', 'why', 'how', 'all', 'each', 'every', 'both', 'few', 'more', 'most', 'other', 'some', 'such', 'no', 'nor', 'not', 'only', 'own', 'same', 'so', 'than', 'too', 'very', 'just', 'about'}
+        words = re.findall(r'\b[a-z]{3,}\b', content_text)
+        word_freq = {}
+        for word in words:
+            if word not in stop_words and len(word) > 2:
+                word_freq[word] = word_freq.get(word, 0) + 1
+        # Get top 15 keywords by frequency
+        top_keywords = sorted(word_freq.items(), key=lambda x: x[1], reverse=True)[:15]
+        top_keywords_list = [{'keyword': k, 'count': c} for k, c in top_keywords]
+        
         # Page size
         page_size_kb = len(response.content) / 1024
 
-        # Image analysis (enhanced)
+        # Image analysis (enhanced with detailed collection)
         images = soup.find_all('img')
         total_images = len(images)
         images_missing_alt = 0
         images_no_dimensions = 0
         images_not_lazy = 0
+        images_details = []  # Detailed image information for modal
         
         for img in images:
-            # Check alt text
-            if not (img.get('alt') and img.get('alt').strip()):
-                images_missing_alt += 1
-            # Check dimensions (width/height attributes help CLS)
-            if not (img.get('width') or img.get('height')):
-                images_no_dimensions += 1
-            # Check lazy loading
+            src = img.get('src', '')
+            alt = img.get('alt', '').strip()
+            width = img.get('width', '')
+            height = img.get('height', '')
             loading = img.get('loading', '').lower()
+            
+            # Build full image URL
+            if src:
+                if src.startswith('/'):
+                    img_url = f"{parsed_base.scheme}://{parsed_base.netloc}{src}"
+                elif src.startswith('http'):
+                    img_url = src
+                else:
+                    img_url = urljoin(response.url, src)
+            else:
+                img_url = ''
+            
+            has_issues = False
+            issues = []
+            
+            # Check alt text
+            if not alt:
+                images_missing_alt += 1
+                has_issues = True
+                issues.append('Missing alt text')
+            
+            # Check dimensions (width/height attributes help CLS)
+            if not (width or height):
+                images_no_dimensions += 1
+                has_issues = True
+                issues.append('Missing dimensions (affects CLS)')
+            
+            # Check lazy loading
             if loading != 'lazy' and not img.get('fetchpriority'):
                 images_not_lazy += 1
+                if total_images > 3:  # Only flag if there are multiple images
+                    has_issues = True
+                    issues.append('Not lazy-loaded')
+            
+            # Store detailed info (limit to first 100 images for modal)
+            if len(images_details) < 100:
+                images_details.append({
+                    'src': img_url,
+                    'alt': alt,
+                    'width': width,
+                    'height': height,
+                    'loading': loading,
+                    'has_issues': has_issues,
+                    'issues': issues
+                })
         
         # Core Web Vitals proxies
         # TTFB estimate (server response time)
         ttfb_estimate = response_time
         
-        # Count render-blocking resources (non-async/defer scripts in head, CSS without media)
+        # Count render-blocking resources with detailed collection
         head = soup.find('head')
         render_blocking_count = 0
         external_scripts = 0
         inline_css_count = 0
+        render_blocking_resources = []  # Detailed list for modal
         
         if head:
             # Count scripts without async/defer
             for script in head.find_all('script'):
-                if script.get('src'):
+                src = script.get('src', '')
+                if src:
                     external_scripts += 1
-                    if not script.get('async') and not script.get('defer'):
+                    is_blocking = not script.get('async') and not script.get('defer')
+                    if is_blocking:
                         render_blocking_count += 1
+                        if len(render_blocking_resources) < 50:
+                            render_blocking_resources.append({
+                                'type': 'script',
+                                'src': src,
+                                'reason': 'Missing async/defer attributes'
+                            })
             
             # Count CSS links without media query (render-blocking)
             for link in head.find_all('link', rel='stylesheet'):
+                href = link.get('href', '')
                 media = link.get('media', '').lower()
                 if not media or media == 'all' or media == 'screen':
                     render_blocking_count += 1
+                    if len(render_blocking_resources) < 50:
+                        render_blocking_resources.append({
+                            'type': 'stylesheet',
+                            'src': href,
+                            'reason': 'Render-blocking CSS'
+                        })
             
             # Count inline styles
             inline_css_count = len(head.find_all('style'))
@@ -630,7 +705,13 @@ def audit_website(url, timeout=15, max_retries=2):
             'render_blocking_count': render_blocking_count,
             'external_scripts': external_scripts,
             'inline_css_count': inline_css_count,
-            'warnings': warnings
+            'warnings': warnings,
+            # Keywords
+            'meta_keywords': meta_keywords,
+            'top_keywords': top_keywords_list,
+            # Detailed information for modal
+            'images_details': images_details,
+            'render_blocking_resources': render_blocking_resources
         }
     except requests.exceptions.Timeout:
         error_result['status_message'] = 'Timeout'
