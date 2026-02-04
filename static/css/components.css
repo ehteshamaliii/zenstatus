@@ -1163,21 +1163,21 @@ tbody tr:hover {
     padding: 16px;
     background: var(--bg-secondary);
     border-radius: 8px;
-    border-left: 4px solid var(--border-color);
+    border: 1px solid var(--border-color);
 }
 
 .issue-item.severity-high {
-    border-left-color: var(--status-error-border);
+    border-color: var(--status-error-border);
     background: var(--status-error-bg);
 }
 
 .issue-item.severity-medium {
-    border-left-color: var(--status-warn-border);
+    border-color: var(--status-warn-border);
     background: var(--status-warn-bg);
 }
 
 .issue-item.severity-low {
-    border-left-color: var(--status-warn-border);
+    border-color: var(--status-warn-border);
     background: var(--status-warn-bg);
 }
 
@@ -1214,7 +1214,7 @@ tbody tr:hover {
     padding: 12px 16px;
     background: var(--bg-secondary);
     border-radius: 8px;
-    border-left: 3px solid #ef4444;
+    border: 1px solid var(--status-error-border);
 }
 
 .broken-link-item a {
@@ -1332,11 +1332,11 @@ tbody tr:hover {
 }
 
 .resource-item.resource-script {
-    border-left-color: var(--status-warn-border);
+    border-color: var(--status-warn-border);
 }
 
 .resource-item.resource-stylesheet {
-    border-left-color: var(--accent-primary);
+    border-color: var(--accent-primary);
 }
 
 .resource-type {
