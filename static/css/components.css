@@ -353,7 +353,7 @@ tbody tr:hover {
     font-size: 1.8em;
     font-weight: 700;
     font-family: var(--font-display);
-    color: white;
+    color: var(--text-on-accent);
     position: relative;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
@@ -404,7 +404,7 @@ tbody tr:hover {
 
 .heading-tag .tag-count {
     background: var(--accent-primary);
-    color: white;
+    color: var(--text-on-accent);
     padding: 2px 6px;
     border-radius: 3px;
     font-size: 0.9em;
@@ -434,7 +434,7 @@ tbody tr:hover {
 
 .pill-number {
     background: var(--accent-primary);
-    color: white;
+    color: var(--text-on-accent);
     font-weight: 700;
     min-width: 28px;
     text-align: center;
@@ -733,7 +733,7 @@ tbody tr:hover {
 .modal-box {
     background: var(--bg-primary);
     border: 1px solid var(--border-color);
-    padding: 32px;
+    overflow:hidden;
     width: 400px;
     border-radius: 16px;
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
@@ -993,7 +993,7 @@ tbody tr:hover {
     justify-content: center;
     font-size: 0.8em;
     font-weight: 600;
-    color: white;
+    color: var(--text-on-accent);
     min-width: 30px;
     transition: flex 0.3s ease;
 }
@@ -1145,8 +1145,8 @@ tbody tr:hover {
 .keyword-tag {
     display: inline-block;
     padding: 6px 12px;
-    background: var(--accent-color);
-    color: white;
+    background: var(--accent-primary);
+    color: var(--text-on-accent);
     border-radius: 6px;
     font-size: 0.85em;
     font-weight: 500;
@@ -1167,18 +1167,18 @@ tbody tr:hover {
 }
 
 .issue-item.severity-high {
-    border-left-color: #ef4444;
-    background: rgba(239, 68, 68, 0.05);
+    border-left-color: var(--status-error-border);
+    background: var(--status-error-bg);
 }
 
 .issue-item.severity-medium {
-    border-left-color: #f97316;
-    background: rgba(249, 115, 22, 0.05);
+    border-left-color: var(--status-warn-border);
+    background: var(--status-warn-bg);
 }
 
 .issue-item.severity-low {
-    border-left-color: #eab308;
-    background: rgba(234, 179, 8, 0.05);
+    border-left-color: var(--status-warn-border);
+    background: var(--status-warn-bg);
 }
 
 .issue-name {
@@ -1255,8 +1255,8 @@ tbody tr:hover {
 }
 
 .image-card.image-has-issues {
-    border-color: #f97316;
-    background: rgba(249, 115, 22, 0.03);
+    border-color: var(--status-warn-border);
+    background: var(--status-warn-bg);
 }
 
 .image-preview {
@@ -1306,15 +1306,15 @@ tbody tr:hover {
 }
 
 .image-details em {
-    color: #ef4444;
+    color: var(--status-error-text);
 }
 
 .image-issues {
     margin-top: 8px;
     padding: 8px;
-    background: rgba(249, 115, 22, 0.1);
+    background: var(--status-warn-bg);
     border-radius: 4px;
-    color: #f97316;
+    color: var(--status-warn-text);
 }
 
 /* Render-Blocking Resources Section */
@@ -1328,22 +1328,22 @@ tbody tr:hover {
     padding: 16px;
     background: var(--bg-secondary);
     border-radius: 8px;
-    border-left: 4px solid var(--border-color);
+    border: 1px solid var(--border-color);
 }
 
 .resource-item.resource-script {
-    border-left-color: #f59e0b;
+    border-left-color: var(--status-warn-border);
 }
 
 .resource-item.resource-stylesheet {
-    border-left-color: #8b5cf6;
+    border-left-color: var(--accent-primary);
 }
 
 .resource-type {
     display: inline-block;
     padding: 4px 8px;
-    background: var(--accent-color);
-    color: white;
+    background: var(--accent-primary);
+    color: var(--text-on-accent);
     border-radius: 4px;
     font-size: 0.75em;
     font-weight: 600;
