@@ -493,6 +493,65 @@ tbody tr:hover {
 .warnings.warn { background: var(--status-warn-bg); color: var(--status-warn-text); border-color: var(--status-warn-border); }
 .warnings.danger { background: var(--status-error-bg); color: var(--status-error-text); border-color: var(--status-error-border); }
 
+/* Warning List */
+.warning-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.warning-list li {
+    padding: 8px 12px;
+    margin: 4px 0;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+    border-left: 3px solid var(--status-warn-border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.95em;
+    transition: all 0.2s ease;
+}
+
+.warning-list li:hover {
+    background: rgba(0, 0, 0, 0.1);
+    transform: translateX(2px);
+}
+
+.warning-list li.severity-high {
+    border-left-color: var(--status-error-text);
+    background: rgba(244, 67, 54, 0.08);
+}
+
+.warning-list li.severity-medium {
+    border-left-color: var(--status-warn-text);
+    background: rgba(255, 152, 0, 0.08);
+}
+
+.warning-list li.severity-low {
+    border-left-color: var(--status-info-text);
+    background: rgba(33, 150, 243, 0.08);
+}
+
+.warning-list .warning-icon {
+    flex-shrink: 0;
+    font-size: 1.1em;
+}
+
+.warning-list li.severity-high .warning-icon {
+    color: var(--status-error-text);
+}
+
+.warning-list li.severity-medium .warning-icon {
+    color: var(--status-warn-text);
+}
+
+.warning-list li.severity-low .warning-icon {
+    color: var(--status-info-text);
+}
+
 .issues-panel {
     border: 1px solid var(--status-warn-border);
     background: var(--status-warn-bg);

@@ -429,7 +429,21 @@ function displaySeoResults(results, sitemapDebug) {
                 else if (result.status_code >= 400) codeClass += ' status-danger';
             }
 
-            var warningsText = (result.warnings || []).join('; ');
+            // Format warnings as a list instead of semicolon-separated
+            var warningsHtml = '';
+            var warnings = result.warnings || [];
+            if (warnings.length > 0) {
+                warningsHtml = '<ul class="warning-list">';
+                warnings.forEach(function(warning) {
+                    var sevClass = getSeverityClass(warning);
+                    var priority = getIssuePriority(warning);
+                    warningsHtml += '<li class="' + sevClass + '" title="' + priority.impact + '">';
+                    warningsHtml += '<span class="warning-icon">⚠</span>' + warning + '</li>';
+                });
+                warningsHtml += '</ul>';
+            } else {
+                warningsHtml = 'No issues detected';
+            }
             var warningsClass = isNetworkError ? 'warnings danger' : (hasWarnings ? 'warnings warn' : 'warnings ok');
             var titleText = result.title || 'No title';
             var metaText = result.meta_description || 'No description';
@@ -506,7 +520,7 @@ function displaySeoResults(results, sitemapDebug) {
                 (result.has_schema ? '    <div class="pill status-ok">Schema: ' + (result.schema_types || []).slice(0, 2).join(', ') + '</div>' : '    <div class="pill status-info">No Schema</div>'),
                 (result.has_twitter_cards ? '    <div class="pill status-ok">Twitter Card</div>' : ''),
                 '  </div>',
-                '  <div class="' + warningsClass + '">' + (warningsText || 'No issues detected') + '</div>',
+                '  <div class="' + warningsClass + '">' + warningsHtml + '</div>',
                 '</div>'
             ].join('');
 
