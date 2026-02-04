@@ -138,33 +138,74 @@ function calculateSeoScore(result) {
     var score = 100;
     var warnings = result.warnings || [];
     
-    // Critical issues (-15 points each)
-    if (!result.title) score -= 15;
-    if (!result.meta_description) score -= 15;
-    if (result.h1_count === 0) score -= 15;
-    if (result.status_code >= 400) score -= 25;
+    // CRITICAL ISSUES - Major SEO impact
+    // Page accessibility & indexability (-20 points each)
+    if (result.status_code >= 400) score -= 20;
+    if (result.status_code >= 500) score -= 25;
+    if (result.robots && result.robots.includes('noindex')) score -= 20;
+    if (!result.https) score -= 15;
     
-    // Major issues (-10 points each)
-    if (result.title_length > 60) score -= 10;
-    if (result.meta_description_length > 160) score -= 10;
-    if (result.h1_count > 1) score -= 10;
-    if (!result.canonical) score -= 10;
-    if (!result.https) score -= 10;
+    // Missing essential meta tags (-12 points each)
+    if (!result.title) score -= 12;
+    if (!result.meta_description) score -= 12;
+    if (result.h1_count === 0) score -= 12;
     
-    // Minor issues (-5 points each)
-    if (result.word_count < 300) score -= 5;
-    if (result.images_missing_alt > 0) score -= 5;
-    if (result.robots && result.robots.includes('noindex')) score -= 10;
-    if (!result.has_viewport) score -= 5;
+    // HIGH PRIORITY ISSUES - Significant SEO impact
+    // Poor quality meta tags (-8 points each)
+    if (result.title && result.title_length < 30) score -= 8;
+    if (result.title && result.title_length > 60) score -= 8;
+    if (result.meta_description && result.meta_description_length < 120) score -= 8;
+    if (result.meta_description && result.meta_description_length > 160) score -= 8;
+    
+    // Content & structure issues (-7 points each)
+    if (result.h1_count > 1) score -= 7;
+    if (!result.canonical) score -= 7;
+    if (!result.has_viewport) score -= 7;
+    if (result.word_count < 300) score -= 7;
+    
+    // MEDIUM PRIORITY ISSUES - Moderate SEO impact
+    // Technical SEO (-5 points each)
+    if (!result.has_sitemap) score -= 5;
+    if (!result.has_robots_txt) score -= 4;
+    if (result.redirect_count > 0) score -= 4;
+    if (result.url_has_underscores) score -= 3;
+    
+    // Image optimization (scale with severity)
+    if (result.images_missing_alt > 0) {
+        var altPenalty = Math.min(10, Math.floor(result.images_missing_alt / 5) + 3);
+        score -= altPenalty;
+    }
+    if (result.images_no_dimensions > 10) {
+        score -= Math.min(7, Math.floor(result.images_no_dimensions / 10) + 2);
+    }
+    if (result.images_not_lazy > 10) {
+        score -= Math.min(6, Math.floor(result.images_not_lazy / 15) + 2);
+    }
+    
+    // Link issues
+    if (result.broken_links > 0) {
+        score -= Math.min(8, result.broken_links * 2);
+    }
+    
+    // LOW PRIORITY ISSUES - Minor SEO impact (-3 points each)
     if (!result.has_lang) score -= 3;
     if (!result.has_og_tags) score -= 3;
     if (!result.has_schema) score -= 3;
+    if (!result.has_twitter_cards) score -= 2;
     
-    // Bonus points
-    if (result.https) score += 5;
-    if (result.word_count >= 1000) score += 5;
-    if (result.has_schema) score += 3;
-    if (result.has_og_tags) score += 2;
+    // Performance issues
+    if (result.render_blocking_count > 20) {
+        score -= Math.min(8, Math.floor(result.render_blocking_count / 10));
+    }
+    if (result.response_time) {
+        var responseTime = parseFloat(result.response_time);
+        if (responseTime > 3) score -= 6;
+        else if (responseTime > 2) score -= 4;
+        else if (responseTime > 1) score -= 2;
+    }
+    if (result.page_size_kb > 2000) {
+        score -= Math.min(5, Math.floor((result.page_size_kb - 2000) / 500));
+    }
     
     return Math.max(0, Math.min(100, score));
 }
