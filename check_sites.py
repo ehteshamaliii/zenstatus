@@ -30,6 +30,32 @@ app = Flask(__name__)
 site_cache = {}
 
 
+def update_site_cache_sitemap(base_url, sitemap_url, url_count=0):
+    """
+    Update the site cache to indicate that a sitemap was successfully found.
+    This is called after successfully crawling a sitemap to prevent false "No sitemap" warnings.
+    """
+    parsed = urlparse(base_url)
+    domain = f"{parsed.scheme}://{parsed.netloc}"
+    
+    # Get existing cache or create new entry
+    if domain in site_cache:
+        site_cache[domain]['has_sitemap'] = True
+        site_cache[domain]['sitemap_url'] = sitemap_url
+        if url_count > 0:
+            site_cache[domain]['sitemap_url_count'] = url_count
+    else:
+        # Create a new cache entry if it doesn't exist
+        site_cache[domain] = {
+            'has_robots_txt': False,
+            'robots_txt_content': '',
+            'robots_rules': [],
+            'has_sitemap': True,
+            'sitemap_url': sitemap_url,
+            'sitemap_url_count': url_count
+        }
+
+
 def get_site_info(base_url, timeout=10):
     """
     Get site-level information: robots.txt and sitemap.xml status.
@@ -907,6 +933,9 @@ def seo_audit():
                 
                 if crawled_urls:
                     sitemap_found_urls = True
+                    # Update the site cache to mark sitemap as found
+                    update_site_cache_sitemap(base_url, target_sitemap, len(crawled_urls))
+                    
                     for u in crawled_urls:
                         all_crawled_urls.append(u)
                         normalized = u.lower().rstrip('/')
