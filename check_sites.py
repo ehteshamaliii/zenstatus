@@ -235,6 +235,9 @@ def audit_website(url, timeout=15, max_retries=2):
     - Images: Alt text check
     - Accessibility: Language attribute
     """
+    # Add small delay to avoid overwhelming the server
+    time.sleep(0.1)
+    
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
     }
@@ -297,7 +300,7 @@ def audit_website(url, timeout=15, max_retries=2):
     }
 
     try:
-        # Retry logic for resilience
+        # Retry logic for resilience with exponential backoff
         attempt = 0
         while True:
             try:
@@ -305,11 +308,11 @@ def audit_website(url, timeout=15, max_retries=2):
                 response = requests.get(url, timeout=timeout, allow_redirects=True, headers=headers)
                 response_time = (datetime.now() - start_time).total_seconds()
                 break
-            except (requests.exceptions.Timeout, requests.exceptions.ConnectionError):
+            except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as e:
                 attempt += 1
                 if attempt >= max_retries:
                     raise
-                time.sleep(1.0 * attempt)
+                time.sleep(0.5 * (2 ** attempt))  # Exponential backoff: 1s, 2s, 4s
 
         soup = BeautifulSoup(response.text, 'html.parser')
 
@@ -816,17 +819,31 @@ def fetch_sitemap_urls(sitemap_url, max_urls=250, max_depth=15, debug=False):
             continue
         seen_sitemaps.add(current_url)
 
-        try:
-            resp = requests.get(current_url, timeout=15, headers=headers)
-        except (requests.exceptions.RequestException, ValueError):
-            debug_info.append({
-                'url': current_url,
-                'depth': depth,
-                'status': 'Connection Error',
-                'parsed': False,
-                'type': 'error',
-                'found': 0
-            })
+        # Add rate limiting to avoid overwhelming the server
+        time.sleep(0.2)
+        
+        # Retry logic for sitemap fetching
+        resp = None
+        for attempt in range(3):
+            try:
+                resp = requests.get(current_url, timeout=15, headers=headers, allow_redirects=True)
+                break
+            except (requests.exceptions.RequestException, ValueError) as e:
+                if attempt < 2:
+                    time.sleep(1.0 * (attempt + 1))  # Exponential backoff
+                else:
+                    debug_info.append({
+                        'url': current_url,
+                        'depth': depth,
+                        'status': f'Connection Error (after {attempt + 1} attempts)',
+                        'parsed': False,
+                        'type': 'error',
+                        'found': 0
+                    })
+                    resp = None
+                    break
+        
+        if resp is None:
             continue
             
         status = resp.status_code
@@ -979,7 +996,7 @@ def seo_audit():
     urls = data.get('urls', [])
     use_sitemap = bool(data.get('use_sitemap'))
     sitemap_url = (data.get('sitemap_url') or '').strip()
-    max_pages = data.get('max_pages') or 100
+    max_pages = data.get('max_pages') or 10000
     try:
         max_pages = max(1, min(int(max_pages), 10000))
     except Exception:
@@ -1065,11 +1082,11 @@ def seo_audit():
 
         yield ": keep-alive\n\n"
 
-        batch_size = 300
+        batch_size = 50
         start_index = 0
         while start_index < total:
             batch = urls[start_index:start_index + batch_size]
-            pool_size = min(8, max(2, len(batch)))
+            pool_size = min(3, max(2, len(batch)))  # Reduced from 8 to 3 to avoid connection errors
             with ThreadPoolExecutor(max_workers=pool_size) as executor:
                 future_to_url = {executor.submit(audit_website, url): url for url in batch}
 
